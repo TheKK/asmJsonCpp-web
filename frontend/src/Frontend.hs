@@ -158,6 +158,11 @@ realBody = elAttr "div" attrs $ mdo
       "display: flex;"
       ]
 
+css :: [Map.Map T.Text T.Text] -> T.Text
+css = fold . fmap go . Map.toList . fold
+  where
+    go (k, v) = k <> ": " <> v <> ";"
+
 selector :: _ => [(T.Text, m ())] -> m ()
 selector pages = mdo
   -- State
