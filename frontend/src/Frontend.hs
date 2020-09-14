@@ -15,6 +15,7 @@ import Common.Route
 import Control.Monad.IO.Class
 import Data.Foldable
 import Data.Time
+import Data.Maybe
 import Data.Traversable
 import Obelisk.Frontend
 import Obelisk.Generated.Static
@@ -170,7 +171,7 @@ selector pages = mdo
     e <- button t
     return $ ma <$ e
 
-  _ <- networkHold blank $ leftmost clicksEs
+  _ <- networkHold (fromMaybe blank $ snd <$> listToMaybe pages) $ leftmost clicksEs
 
   return ()
 
