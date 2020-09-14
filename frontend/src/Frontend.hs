@@ -148,15 +148,15 @@ realBody = elAttr "div" attrs $ mdo
   return ()
 
   where
-    attrs = fold [
+    attrs = mkAttrs [
       "class" =: "real-body",
       "style" =: styles
       ]
 
-    styles = " " <> fold [
-      "width: 600px;",
-      "height: 200px;",
-      "display: flex;"
+    styles = css [
+      "width" =: "600px",
+      "height" =: "200px",
+      "display" =: "flex"
       ]
 
 css :: [Map.Map T.Text T.Text] -> T.Text
