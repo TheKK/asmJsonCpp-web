@@ -123,19 +123,37 @@ exampleSourceCode :: Example -> T.Text
 exampleSourceCode Example_Empty = ""
 exampleSourceCode Example_ArrayOfString = "AsArray EachElement AsString"
 
-realBody :: _ => m ()
-realBody = elAttr "div" attrs $ mdo
+inputWidget :: _ => m (Dynamic t T.Text)
+inputWidget = divClass "query-section" $ mdo
   -- State
+
+  -- UI
+  divClass "title" $ text "Query"
+
+  inputArea' <- textAreaElement $ def
+    & initialAttributes .~ fold
+      [ "class" =: "input-area"
+      ]
+    & textAreaElementConfig_setValue .~ leftmost
+      [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
+      ]
+
+  dropdown' <- dropdown Example_Empty (constDyn $ fold
+    [ Example_Empty =: "playground"
+    , Example_ArrayOfString =: "array of string"
+    ])
+    def
+
+  -- Exports
+  return $ _textAreaElement_value inputArea'
+
+resultWidget :: _ => Dynamic t T.Text -> m ()
+resultWidget resultDyn = divClass "result-section" $ mdo
+  -- State
+  debouncedResultE <- debounce 0.7 $ updated resultDyn
+
   let
-    areaValueE = updated . _textAreaElement_value $ inputArea
-
-  debouncedAreaInputE <- debounce 0.7 areaValueE
-
-  let
-    -- XXX replace is not great.
-    encode = T.replace "\n" "%0A" . T.replace " " "%20"
-
-    testE = ffor debouncedAreaInputE $ \query ->
+    testE = ffor debouncedResultE $ \query ->
       xhrRequest "GET" ("http://motherbrain.syno:5587/api/v1/compile?query=" <> encode query) def
 
   respE <- ffor (performRequestAsync testE) $
@@ -144,30 +162,23 @@ realBody = elAttr "div" attrs $ mdo
   respDyn <- holdDyn "^^^ TYPE SOMETHING TO PLAY ^^^" respE
 
   -- UI
-  inputArea <- divClass "query-section" $ mdo
-    pE <- getPostBuild
+  divClass "title" $ text "Result"
+  divClass "result-area" $ dynText respDyn
 
-    divClass "title" $ text "Query"
-    inputArea' <- textAreaElement $ def
-      & initialAttributes .~ fold
-        [ "class" =: "input-area"
-        ]
-      & textAreaElementConfig_setValue .~ leftmost
-        [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
-        ]
+  -- Exports
+  return ()
 
-    dropdown' <- dropdown Example_Empty (constDyn $ fold
-      [ Example_Empty =: "playground"
-      , Example_ArrayOfString =: "array of string"
-      ])
-      def
+  where
+    -- XXX replace is not great.
+    encode = T.replace "\n" "%0A" . T.replace " " "%20"
 
-    return inputArea'
+realBody :: _ => m ()
+realBody = elAttr "div" attrs $ mdo
+  -- State
 
-  divClass "result-section" $ do
-    divClass "title" $ text "Result"
-    divClass "result-area" $
-      dynText respDyn
+  -- UI
+  areaValueDyn <- inputWidget
+  resultWidget areaValueDyn
 
   -- Export
   return ()
