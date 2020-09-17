@@ -34,6 +34,7 @@ frontend = Frontend
   { _frontend_head = do
       el "title" $ text "Obelisk Minimal Example"
       elAttr "link" ("href" =: static @"main.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
+      elAttr "link" ("href" =: static @"normalize.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
   , _frontend_body = prerender_ blank mainBody
   }
 
