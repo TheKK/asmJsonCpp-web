@@ -6,6 +6,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 {-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
 
@@ -32,7 +33,7 @@ frontend :: Frontend (R FrontendRoute)
 frontend = Frontend
   { _frontend_head = do
       el "title" $ text "Obelisk Minimal Example"
-      elAttr "link" ("href" =: static @"main.scss" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
+      elAttr "link" ("href" =: static @"main.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
   , _frontend_body = prerender_ blank mainBody
   }
 
@@ -108,41 +109,64 @@ fooBody = elAttr "div" attrs $ mdo
       ]
 
     styles = " " <> fold [
-      "width: 600px;",
-      "height: 200px;",
       "box-shadow: #00000087 1px 1px 7px;",
       "border-radius: 5px"
       ]
 
+data Example
+  = Example_Empty
+  | Example_ArrayOfString
+  deriving (Eq, Ord)
+
+exampleSourceCode :: Example -> T.Text
+exampleSourceCode Example_Empty = ""
+exampleSourceCode Example_ArrayOfString = "AsArray EachElement AsString"
+
 realBody :: _ => m ()
 realBody = elAttr "div" attrs $ mdo
-  -- Event
-  let
-    areaInputE = _textAreaElement_input inputArea
-
-  debouncedAreaInputE <- debounce 0.7 areaInputE
-
   -- State
-  inputStatusDyn <- foldDyn ($) "-" $ leftmost
-    [ const "..." <$ areaInputE
-    , const "Done"  <$ debouncedAreaInputE
-    ]
+  let
+    areaValueE = updated . _textAreaElement_value $ inputArea
 
-  sDyn <- holdDyn "EMPTY" debouncedAreaInputE
+  debouncedAreaInputE <- debounce 0.7 areaValueE
+
+  let
+    -- XXX replace is not great.
+    encode = T.replace "\n" "%0A" . T.replace " " "%20"
+
+    testE = ffor debouncedAreaInputE $ \query ->
+      xhrRequest "GET" ("http://motherbrain.syno:5587/api/v1/compile?query=" <> encode query) def
+
+  respE <- ffor (performRequestAsync testE) $
+    fmap (fromMaybe "nothing" . _xhrResponse_responseText)
+
+  respDyn <- holdDyn "^^^ TYPE SOMETHING TO PLAY ^^^" respE
 
   -- UI
-  inputArea <- divClass "a" $ mdo
-    inputArea <- divClass "input-area" $
-      textAreaElement $ def
-        & initialAttributes .~ fold []
+  inputArea <- divClass "query-section" $ mdo
+    pE <- getPostBuild
 
-    divClass "input-indicator" $
-      dynText inputStatusDyn
+    divClass "title" $ text "Query"
+    inputArea' <- textAreaElement $ def
+      & initialAttributes .~ fold
+        [ "class" =: "input-area"
+        ]
+      & textAreaElementConfig_setValue .~ leftmost
+        [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
+        ]
 
-    return inputArea
+    dropdown' <- dropdown Example_Empty (constDyn $ fold
+      [ Example_Empty =: "playground"
+      , Example_ArrayOfString =: "array of string"
+      ])
+      def
 
-  divClass "output-area" $
-    dynText sDyn
+    return inputArea'
+
+  divClass "result-section" $ do
+    divClass "title" $ text "Result"
+    divClass "result-area" $
+      dynText respDyn
 
   -- Export
   return ()
@@ -154,8 +178,6 @@ realBody = elAttr "div" attrs $ mdo
       ]
 
     styles = css [
-      "width" =: "600px",
-      "height" =: "200px",
       "display" =: "flex"
       ]
 
@@ -167,9 +189,10 @@ css = fold . fmap go . Map.toList . fold
 selector :: _ => [(T.Text, m ())] -> m ()
 selector pages = mdo
   -- State
-  clicksEs <- for pages $ \(t, ma) -> do
-    e <- button t
-    return $ ma <$ e
+  clicksEs <- divClass "selector-buttons" $
+    for pages $ \(t, ma) -> do
+      e <- button t
+      return $ ma <$ e
 
   _ <- networkHold (fromMaybe blank $ snd <$> listToMaybe pages) $ leftmost clicksEs
 
