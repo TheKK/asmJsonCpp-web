@@ -117,11 +117,41 @@ fooBody = elAttr "div" attrs $ mdo
 data Example
   = Example_Empty
   | Example_ArrayOfString
+  | Example_AllFeatures
   deriving (Eq, Ord)
 
 exampleSourceCode :: Example -> T.Text
 exampleSourceCode Example_Empty = ""
 exampleSourceCode Example_ArrayOfString = "AsArray EachElement AsString"
+exampleSourceCode Example_AllFeatures = T.init . T.unlines $
+  [
+    "// Support line comment!",
+    "",
+    "/* Support",
+    "* block comment as well!",
+    "*/",
+    "",
+    "// Parse fields of object into struct.",
+    "AsObj FieldsToStruct MagicStructName [",
+    "  // You can parse int.",
+    "  (i, AsInt),",
+    "",
+    "  // Parse string.",
+    "  (s, AsString),",
+    "",
+    "  // Parse into vector.",
+    "  (vector_of_i, AsArray EachElement AsInt),",
+    "",
+    "  // Parse item inside array.",
+    "  (one_of_array, AsArray AtNth 42 AsString),",
+    "",
+    "  // Parse field of object.",
+    "  (in_obj, AsObj AtField xyz AsInt),",
+    "",
+    "  // Parse indexes into struct.",
+    "  (indexes, AsArray IndexesToStruct Indexes [(1, first, AsString), (2, second, AsInt),])",
+    "]"
+  ]
 
 inputWidget :: _ => m (Dynamic t T.Text)
 inputWidget = divClass "query-section" $ mdo
@@ -141,6 +171,7 @@ inputWidget = divClass "query-section" $ mdo
   dropdown' <- dropdown Example_Empty (constDyn $ fold
     [ Example_Empty =: "playground"
     , Example_ArrayOfString =: "array of string"
+    , Example_AllFeatures =: "all features"
     ])
     def
 
