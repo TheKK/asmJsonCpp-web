@@ -13,9 +13,7 @@
 module Frontend where
 
 import Common.Route
-import Control.Monad.IO.Class
 import Data.Foldable
-import Data.Time
 import Data.Maybe
 import Data.Traversable
 import Obelisk.Frontend
@@ -37,82 +35,6 @@ frontend = Frontend
       elAttr "link" ("href" =: static @"normalize.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
   , _frontend_body = prerender_ blank mainBody
   }
-
-data CounterEvent = Done | Cancel | Counting Int
-  deriving (Show)
-
-isDone :: CounterEvent -> Bool
-isDone Done = True
-isDone _ = False
-
-countDown :: _ => Event t a -> NominalDiffTime -> Int -> m (Event t Int)
-countDown e interval c = do
-  cur <- liftIO getCurrentTime
-  ticksE <- tickLossy interval cur
-  es <- zipListWithEvent (\a _ -> a) (take c $ iterate pred (c - 1)) ticksE
-
-  return $ leftmost [c <$ e, es]
-
-raceTest :: _ => m ()
-raceTest = elClass "div" "raceTest" $ mdo
-  -- State
-  let initValue = 100
-
-  eventDyn <- holdDyn (pure never) $ leftmost
-    [ countDown startE 0.02 initValue <$ startE
-    , (pure never) <$ (canceledE <> resetE)
-    ]
-
-  eE <- switchHold never =<< networkView eventDyn
-
-  sDyn <- holdDyn 0 $ leftmost
-    [ eE
-    , 0 <$ resetE
-    ]
-
-  -- UI
-  startE <- button "START"
-  canceledE <- button "STOP"
-  resetE <- button "RESET"
-
-  display sDyn
-
-  -- Exports
-  return ()
-
-fooBody :: _ => m ()
-fooBody = elAttr "div" attrs $ mdo
-  -- State
-  checkedTrueE' <- debounce 1 checkedTrueE
-
-  let
-    checkedE = updated checkedDyn
-    checkedTrueE = () <$ ffilter id checkedE
-    checkedFalseE = () <$ ffilter not checkedE
-
-  t <- holdDyn Cancel $ leftmost
-    [ Cancel <$ checkedFalseE
-    , Done <$ checkedTrueE'
-    ]
-
-  -- UI
-  text "Reflex-FRP!"
-  checkedDyn <- Frontend.checkbox
-  _ <- mkButton "next" $ updated $ fmap isDone t
-
-  -- Exports
-  return ()
-
-  where
-    attrs = mkAttrs [
-      "href" =: "https://reflex-frp.org",
-      "style" =: styles
-      ]
-
-    styles = " " <> fold [
-      "box-shadow: #00000087 1px 1px 7px;",
-      "border-radius: 5px"
-      ]
 
 data Example
   = Example_Empty
@@ -246,8 +168,6 @@ mainBody = elClass "div" "mainBody" $ mdo
   -- UI
   selector
     [ ("real", realBody)
-    , ("foo", fooBody)
-    , ("race", raceTest)
     ]
 
   -- Exports
@@ -255,29 +175,3 @@ mainBody = elClass "div" "mainBody" $ mdo
 
 mkAttrs :: [Map.Map T.Text T.Text] -> Map.Map T.Text T.Text
 mkAttrs = fold
-
-checkbox :: _ => m (Dynamic t Bool)
-checkbox = mdo
-  e <- inputElement $ def
-    & inputElementConfig_initialChecked .~ False
-    & inputElementConfig_elementConfig . elementConfig_initialAttributes .~
-      ("type" =: "checkbox")
-
-
-  return $ _inputElement_checked e
-
-mkButton :: (DomBuilder t m, _) => T.Text -> Event t Bool -> m (Event t ())
-mkButton t enabledE = mdo
-  e <- inputElement $ def
-    & inputElementConfig_initialValue .~ t
-    & inputElementConfig_elementConfig . elementConfig_initialAttributes .~
-      ("type" =: "button" <>
-       "disabled" =: "true")
-    & modifyAttributes .~
-      (Map.singleton "disabled" <$> (fmap enabled enabledE))
-
-  return $ domEvent Click e
-
-  where
-    enabled False = Just "true"
-    enabled True = Nothing
