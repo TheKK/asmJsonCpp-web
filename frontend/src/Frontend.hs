@@ -15,6 +15,7 @@ module Frontend where
 import Common.Route
 import Data.Foldable
 import Data.Maybe
+import Control.Monad
 import Data.Traversable
 import Obelisk.Frontend
 import Obelisk.Generated.Static
@@ -23,6 +24,11 @@ import Reflex.Dom.Core
 import Reflex.Network
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
+import Language.Javascript.JSaddle (eval, liftJSM)
+import Language.Javascript.JSaddle.Types (JSM, MonadJSM)
+
+runOnEvent :: (Adjustable t m, MonadHold t m, MonadJSM m) => Event t a -> (a -> JSM b) -> m ()
+runOnEvent e jsCode = void $ networkHold blank $ (ffor e $ \v -> liftJSM $ void $ jsCode v)
 
 -- This runs in a monad that can be run on the client or the server.
 -- To run code in a pure client or pure server context, use one of the
@@ -100,6 +106,21 @@ inputWidget = divClass "query-section" $ mdo
   -- Exports
   return $ _textAreaElement_value inputArea'
 
+copyButton :: (MonadWidget t m) => T.Text -> m ()
+copyButton query = mdo
+  -- Events
+  runOnEvent e $ \() -> do
+    eval . fold $
+      [ "document.querySelector('" <> query <> "').select();",
+        "document.execCommand('copy');"
+      ]
+
+  -- UI
+  e <- button "Copy"
+
+  -- Exports
+  return ()
+
 resultWidget :: _ => Dynamic t T.Text -> m ()
 resultWidget resultDyn = divClass "result-section" $ mdo
   -- State
@@ -121,6 +142,7 @@ resultWidget resultDyn = divClass "result-section" $ mdo
       ]
     & textAreaElementConfig_initialValue .~ "^^^ TYPE SOMETHING TO PLAY ^^^"
     & textAreaElementConfig_setValue .~ respE
+  copyButton ".result-area"
 
   -- Exports
   return ()
