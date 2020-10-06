@@ -112,11 +112,15 @@ resultWidget resultDyn = divClass "result-section" $ mdo
   respE <- ffor (performRequestAsync testE) $
     fmap (fromMaybe "nothing" . _xhrResponse_responseText)
 
-  respDyn <- holdDyn "^^^ TYPE SOMETHING TO PLAY ^^^" respE
-
   -- UI
   divClass "title" $ text "Result"
-  divClass "result-area" $ dynText respDyn
+  inputArea' <- textAreaElement $ def
+    & initialAttributes .~ fold
+      [ "class" =: "result-area"
+      , "readonly" =: ""
+      ]
+    & textAreaElementConfig_initialValue .~ "^^^ TYPE SOMETHING TO PLAY ^^^"
+    & textAreaElementConfig_setValue .~ respE
 
   -- Exports
   return ()
