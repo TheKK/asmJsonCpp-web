@@ -39,6 +39,7 @@ frontend = Frontend
       el "title" $ text "Obelisk Minimal Example"
       elAttr "link" ("href" =: static @"main.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
       elAttr "link" ("href" =: static @"normalize.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
+      elAttr "link" ("href" =: static @"bulma.min.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
   , _frontend_body = prerender_ blank mainBody
   }
 
