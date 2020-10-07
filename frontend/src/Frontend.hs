@@ -152,11 +152,17 @@ resultWidget resultDyn = divClass "result-section" $ mdo
     -- XXX replace is not great.
     encode = T.replace "\n" "%0A" . T.replace " " "%20"
 
+pageTitle :: (MonadWidget t m) => m ()
+pageTitle = do
+  divClass "title" $ text "AsmJsonCpp"
+  divClass "subtitle" $ text "Do the repeating job for you, safely and more efficiently than you. Sorry, human beings."
+
 realBody :: _ => m ()
 realBody = elAttr "div" attrs $ mdo
   -- State
 
   -- UI
+  pageTitle
   areaValueDyn <- inputWidget
   resultWidget areaValueDyn
 
