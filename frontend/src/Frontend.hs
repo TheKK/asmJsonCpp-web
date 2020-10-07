@@ -110,14 +110,14 @@ inputWidget = divClass "query-section" $ mdo
 copyButton :: (MonadWidget t m) => T.Text -> m ()
 copyButton query = mdo
   -- Events
-  runOnEvent e $ \() -> do
+  runOnEvent clicked $ \() -> do
     eval . fold $
       [ "document.querySelector('" <> query <> "').select();",
         "document.execCommand('copy');"
       ]
 
   -- UI
-  e <- button "Copy"
+  Link clicked <- linkClass "Copy" "button is-primary is-small"
 
   -- Exports
   return ()
