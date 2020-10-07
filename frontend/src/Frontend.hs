@@ -87,7 +87,7 @@ inputWidget = divClass "query-section" $ mdo
   -- State
 
   -- UI
-  divClass "title" $ text "Query"
+  divClass "title is-5" $ text "Query"
 
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
@@ -135,7 +135,7 @@ resultWidget resultDyn = divClass "result-section" $ mdo
     fmap (fromMaybe "nothing" . _xhrResponse_responseText)
 
   -- UI
-  divClass "title" $ text "Result"
+  divClass "title is-5" $ text "Result"
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "result-area"
