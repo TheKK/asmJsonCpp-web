@@ -83,7 +83,7 @@ exampleSourceCode Example_AllFeatures = T.init . T.unlines $
   ]
 
 inputWidget :: _ => m (Dynamic t T.Text)
-inputWidget = divClass "query-section" $ mdo
+inputWidget = divClass "block" $ mdo
   -- State
 
   -- UI
@@ -91,7 +91,7 @@ inputWidget = divClass "query-section" $ mdo
 
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
-      [ "class" =: "input-area"
+      [ "class" =: "textarea"
       ]
     & textAreaElementConfig_setValue .~ leftmost
       [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
@@ -123,7 +123,7 @@ copyButton query = mdo
   return ()
 
 resultWidget :: _ => Dynamic t T.Text -> m ()
-resultWidget resultDyn = divClass "result-section" $ mdo
+resultWidget resultDyn = divClass "block" $ mdo
   -- State
   debouncedResultE <- debounce 0.7 $ updated resultDyn
 
@@ -138,7 +138,7 @@ resultWidget resultDyn = divClass "result-section" $ mdo
   divClass "title is-5" $ text "Result"
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
-      [ "class" =: "result-area"
+      [ "class" =: "result-area textarea"
       , "readonly" =: ""
       ]
     & textAreaElementConfig_initialValue .~ "^^^ TYPE SOMETHING TO PLAY ^^^"
