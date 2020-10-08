@@ -91,7 +91,7 @@ inputWidget = divClass "block" $ mdo
 
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
-      [ "class" =: "textarea"
+      [ "class" =: "textarea is-family-code"
       , "rows" =: "10"
       ]
     & textAreaElementConfig_setValue .~ leftmost
@@ -139,7 +139,7 @@ resultWidget resultDyn = divClass "block" $ mdo
   divClass "title is-5" $ text "Result"
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
-      [ "class" =: "result-area textarea"
+      [ "class" =: "result-area textarea is-family-code"
       , "rows" =: "10"
       , "readonly" =: ""
       ]
