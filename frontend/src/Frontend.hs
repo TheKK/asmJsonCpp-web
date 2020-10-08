@@ -97,7 +97,7 @@ inputWidget = divClass "block" $ mdo
       [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
       ]
 
-  dropdown' <- dropdown Example_Empty (constDyn $ fold
+  dropdown' <- divClass "select" $ dropdown Example_Empty (constDyn $ fold
     [ Example_Empty =: "playground"
     , Example_ArrayOfString =: "array of string"
     , Example_AllFeatures =: "all features"
