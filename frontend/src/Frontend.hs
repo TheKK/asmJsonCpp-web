@@ -8,8 +8,6 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-{-# OPTIONS_GHC -fno-warn-partial-type-signatures #-}
-
 module Frontend where
 
 import Common.Route
@@ -82,7 +80,7 @@ exampleSourceCode Example_AllFeatures = T.init . T.unlines $
     "]"
   ]
 
-inputWidget :: _ => m (Dynamic t T.Text)
+inputWidget :: (MonadWidget t m) => m (Dynamic t T.Text)
 inputWidget = divClass "block" $ mdo
   -- State
 
@@ -123,7 +121,7 @@ copyButton query = mdo
   -- Exports
   return ()
 
-resultWidget :: _ => Dynamic t T.Text -> m ()
+resultWidget :: (MonadWidget t m) => Dynamic t T.Text -> m ()
 resultWidget resultDyn = divClass "block" $ mdo
   -- State
   debouncedResultE <- debounce 0.7 $ updated resultDyn
@@ -159,7 +157,7 @@ pageTitle = do
   divClass "title" $ text "AsmJsonCpp"
   divClass "subtitle" $ text "Do the repeating job for you, safely and more efficiently than you. Sorry, human beings."
 
-realBody :: _ => m ()
+realBody :: (MonadWidget t m) => m ()
 realBody = elAttr "div" attrs $ mdo
   -- State
 
@@ -186,7 +184,7 @@ css = fold . fmap go . Map.toList . fold
   where
     go (k, v) = k <> ": " <> v <> ";"
 
-selector :: _ => [(T.Text, m ())] -> m ()
+selector :: (MonadWidget t m) => [(T.Text, m ())] -> m ()
 selector pages = mdo
   -- State
   clicksEs <- divClass "selector-buttons" $
@@ -198,7 +196,7 @@ selector pages = mdo
 
   return ()
 
-mainBody :: _ => m ()
+mainBody :: (MonadWidget t m) => m ()
 mainBody = elClass "div" "mainBody" $ mdo
   -- UI
   selector
