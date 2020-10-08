@@ -117,7 +117,7 @@ copyButton query = mdo
       ]
 
   -- UI
-  Link clicked <- linkClass "Copy" "button is-primary is-small"
+  Link clicked <- linkClass "Copy" "button is-primary"
 
   -- Exports
   return ()
