@@ -92,6 +92,7 @@ inputWidget = divClass "block" $ mdo
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "textarea"
+      , "rows" =: "10"
       ]
     & textAreaElementConfig_setValue .~ leftmost
       [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
@@ -139,6 +140,7 @@ resultWidget resultDyn = divClass "block" $ mdo
   inputArea' <- textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "result-area textarea"
+      , "rows" =: "10"
       , "readonly" =: ""
       ]
     & textAreaElementConfig_initialValue .~ "^^^ TYPE SOMETHING TO PLAY ^^^"
