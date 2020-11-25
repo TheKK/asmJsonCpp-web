@@ -15,6 +15,7 @@ library
                , obelisk-executable-config-lookup
                , obelisk-generated-static
                , text
+               , containers
   exposed-modules:
     Frontend
   ghc-options: -Wall
