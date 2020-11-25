@@ -110,14 +110,17 @@ inputWidget = divClass "block" $ mdo
 copyButton :: (MonadWidget t m) => T.Text -> m ()
 copyButton query = mdo
   -- Events
-  runOnEvent clicked $ \() -> do
+  runOnEvent (domEvent Click e) $ \() -> do
     eval . fold $
       [ "document.querySelector('" <> query <> "').select();",
         "document.execCommand('copy');"
       ]
 
   -- UI
-  Link clicked <- linkClass "Copy" "button is-primary"
+  (e, _) <-
+    elClass' "button" "button is-primary" $ do
+      elClass "span" "icon" $ elClass "i" "las la-clipboard la-lg" blank
+      el "span" $ text "Copy"
 
   -- Exports
   return ()
