@@ -12,7 +12,6 @@ let
 in dockerTools.buildLayeredImage {
   name = "asmJsonCpp-ui";
   tag = "latest";
-  contents = [ exe ];
   config = {
     WorkingDir = "${exe}";
     Cmd = [ "${exe}/backend" "-p 8080" ];
