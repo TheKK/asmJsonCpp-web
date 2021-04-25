@@ -17,6 +17,7 @@ library
                , text
   exposed-modules:
     Frontend
+    Frontend.Configs
   ghc-options: -Wall
 
 executable frontend

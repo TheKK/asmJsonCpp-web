@@ -23,10 +23,10 @@ import Reflex.Dom.Core
 import Reflex.Network
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as T
 import Language.Javascript.JSaddle (eval, liftJSM)
 import Language.Javascript.JSaddle.Types (JSM, MonadJSM)
-import qualified Data.ByteString as BS
+
+import qualified Frontend.Configs as C
 
 runOnEvent :: (Adjustable t m, MonadHold t m, MonadJSM m) => Event t a -> (a -> JSM b) -> m ()
 runOnEvent e jsCode = void $ networkHold blank $ (ffor e $ \v -> liftJSM $ void $ jsCode v)
@@ -130,7 +130,7 @@ copyButton query = mdo
 
 compileV1 :: (MonadWidget t m, HasConfigs m) => Event t T.Text -> m (Event t T.Text)
 compileV1 queryE = do
-  apiUrl <- T.decodeUtf8 . fromMaybe "" <$> getConfig "frontend/server_url"
+  apiUrl <- C.getServerURL
 
   respE <- performRequestAsync
     $ fmap (\url -> xhrRequest "GET" url def)
