@@ -17,13 +17,16 @@ import Control.Monad
 import Data.Traversable
 import Obelisk.Frontend
 import Obelisk.Generated.Static
+import Obelisk.Configs
 import Obelisk.Route
 import Reflex.Dom.Core
 import Reflex.Network
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as T
 import Language.Javascript.JSaddle (eval, liftJSM)
 import Language.Javascript.JSaddle.Types (JSM, MonadJSM)
+import qualified Data.ByteString as BS
 
 runOnEvent :: (Adjustable t m, MonadHold t m, MonadJSM m) => Event t a -> (a -> JSM b) -> m ()
 runOnEvent e jsCode = void $ networkHold blank $ (ffor e $ \v -> liftJSM $ void $ jsCode v)
@@ -107,7 +110,7 @@ inputWidget = divClass "block" $ mdo
   -- Exports
   return $ _textAreaElement_value inputArea'
 
-copyButton :: (MonadWidget t m) => T.Text -> m ()
+copyButton :: (MonadWidget t m, HasConfigs m) => T.Text -> m ()
 copyButton query = mdo
   -- Events
   runOnEvent (domEvent Click e) $ \() -> do
@@ -125,17 +128,29 @@ copyButton query = mdo
   -- Exports
   return ()
 
-resultWidget :: (MonadWidget t m) => Dynamic t T.Text -> m ()
+compileV1 :: (MonadWidget t m, HasConfigs m) => Event t T.Text -> m (Event t T.Text)
+compileV1 queryE = do
+  apiUrl <- T.decodeUtf8 . fromMaybe "" <$> getConfig "frontend/server_url"
+
+  respE <- performRequestAsync
+    $ fmap (\url -> xhrRequest "GET" url def)
+    $ fmap (\query -> apiUrl <> "/api/v1/compile?query=" <> query)
+    $ fmap encode
+    $ queryE
+
+  return $ fmap (fromMaybe "nothing" . _xhrResponse_responseText) respE
+
+  where
+    -- XXX replace is not great.
+    encode = T.replace "\n" "%0A" . T.replace " " "%20"
+
+resultWidget :: (MonadWidget t m, HasConfigs m) => Dynamic t T.Text -> m ()
 resultWidget resultDyn = divClass "block" $ mdo
   -- State
   debouncedResultE <- debounce 0.7 $ updated resultDyn
 
-  let
-    testE = ffor debouncedResultE $ \query ->
-      xhrRequest "GET" ("http://motherbrain.syno:5587/api/v1/compile?query=" <> encode query) def
-
-  respE <- ffor (performRequestAsync testE) $
-    fmap (fromMaybe "nothing" . _xhrResponse_responseText)
+  -- Events
+  respE <- compileV1 debouncedResultE
 
   -- UI
   divClass "title is-5" $ text "Result"
@@ -152,16 +167,12 @@ resultWidget resultDyn = divClass "block" $ mdo
   -- Exports
   return ()
 
-  where
-    -- XXX replace is not great.
-    encode = T.replace "\n" "%0A" . T.replace " " "%20"
-
 pageTitle :: (MonadWidget t m) => m ()
 pageTitle = do
   divClass "title" $ text "AsmJsonCpp"
   divClass "subtitle" $ text "Do the repeating job for you, safely and more efficiently than you. Sorry, human beings."
 
-realBody :: (MonadWidget t m) => m ()
+realBody :: (MonadWidget t m, HasConfigs m) => m ()
 realBody = elAttr "div" attrs $ mdo
   -- State
 
@@ -200,7 +211,7 @@ selector pages = mdo
 
   return ()
 
-mainBody :: (MonadWidget t m) => m ()
+mainBody :: (MonadWidget t m, HasConfigs m) => m ()
 mainBody = elClass "div" "mainBody" $ mdo
   -- UI
   selector
