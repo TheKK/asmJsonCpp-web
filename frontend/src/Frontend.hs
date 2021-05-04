@@ -172,14 +172,36 @@ pageTitle = do
   divClass "title" $ text "AsmJsonCpp"
   divClass "subtitle" $ text "Do the repeating job for you, safely and more efficiently than you. Sorry, human beings."
 
+heartIcon :: MonadWidget t m => m ()
+heartIcon = elClass "i" "las la-heart" blank
+
+haskellLink :: MonadWidget t m => m ()
+haskellLink = elAttr "a" ("href" =: "https://www.haskell.org/" <> "target" =: "_blank")
+  $ text "Haskell"
+
+footer :: MonadWidget t m => m ()
+footer =
+  elAttr "div" attrs $ do
+    text "Made with " >> heartIcon >> text " and " >> haskellLink >> text " by TheKK"
+
+  where
+    attrs = mkAttrs
+      [ "style" =: css
+          [ "text-align" =: "center"
+          , "padding-bottom" =: "15px"
+          ]
+      ]
+
 realBody :: (MonadWidget t m, HasConfigs m) => m ()
-realBody = elAttr "div" attrs $ mdo
+realBody = mdo
   -- State
 
   -- UI
-  pageTitle
-  areaValueDyn <- inputWidget
-  resultWidget areaValueDyn
+  elAttr "div" attrs $ do
+    pageTitle
+    areaValueDyn <- inputWidget
+    resultWidget areaValueDyn
+  footer
 
   -- Export
   return ()
@@ -190,8 +212,9 @@ realBody = elAttr "div" attrs $ mdo
       "style" =: styles
       ]
 
-    styles = css [
-      "display" =: "flex"
+    styles = css
+      [ "display" =: "flex"
+      , "flex" =: "1"
       ]
 
 css :: [Map.Map T.Text T.Text] -> T.Text
@@ -212,7 +235,7 @@ selector pages = mdo
   return ()
 
 mainBody :: (MonadWidget t m, HasConfigs m) => m ()
-mainBody = elClass "div" "mainBody" $ mdo
+mainBody = elAttr "div" attrs $ mdo
   -- UI
   selector
     [ ("real", realBody)
@@ -220,6 +243,15 @@ mainBody = elClass "div" "mainBody" $ mdo
 
   -- Exports
   return ()
+
+  where
+    attrs = mkAttrs
+      [ "style" =: css
+          [ "display" =: "flex"
+          , "flex-direction" =: "column"
+          , "height" =: "100vh"
+          ]
+      ]
 
 mkAttrs :: [Map.Map T.Text T.Text] -> Map.Map T.Text T.Text
 mkAttrs = fold
