@@ -207,7 +207,7 @@ selector pages = mdo
       e <- button t
       return $ ma <$ e
 
-  _ <- networkHold (fromMaybe blank $ snd <$> listToMaybe pages) $ leftmost clicksEs
+  _ <- widgetHold (fromMaybe blank $ snd <$> listToMaybe pages) $ leftmost clicksEs
 
   return ()
 
