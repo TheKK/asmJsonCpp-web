@@ -85,7 +85,7 @@ exampleSourceCode Example_AllFeatures = T.init . T.unlines $
   ]
 
 inputWidget :: (MonadWidget t m) => m (Dynamic t T.Text)
-inputWidget = divClass "block" $ mdo
+inputWidget = mdo
   -- State
 
   -- UI
@@ -145,7 +145,7 @@ compileV1 queryE = do
     encode = T.replace "\n" "%0A" . T.replace " " "%20"
 
 resultWidget :: (MonadWidget t m, HasConfigs m) => Dynamic t T.Text -> m ()
-resultWidget resultDyn = divClass "block" $ mdo
+resultWidget resultDyn = do
   -- State
   debouncedResultE <- debounce 0.7 $ updated resultDyn
 
@@ -193,14 +193,15 @@ footer =
       ]
 
 realBody :: (MonadWidget t m, HasConfigs m) => m ()
-realBody = mdo
+realBody = do
   -- State
 
   -- UI
   elAttr "div" attrs $ do
     pageTitle
-    areaValueDyn <- inputWidget
-    resultWidget areaValueDyn
+    elClass "div" "columns is-desktop" $ do
+      areaValueDyn <- divClass "column" $ inputWidget
+      divClass "column" $ resultWidget areaValueDyn
   footer
 
   -- Export
