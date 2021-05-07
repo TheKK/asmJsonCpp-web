@@ -91,7 +91,7 @@ inputWidget = mdo
   -- UI
   divClass "title is-5" $ text "Query"
 
-  inputArea' <- textAreaElement $ def
+  inputArea' <- divClass "block" $ textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "textarea is-family-code"
       , "rows" =: "10"
@@ -154,7 +154,7 @@ resultWidget resultDyn = do
 
   -- UI
   divClass "title is-5" $ text "Result"
-  inputArea' <- textAreaElement $ def
+  inputArea' <- divClass "block" $ textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "result-area textarea is-family-code"
       , "rows" =: "10"
