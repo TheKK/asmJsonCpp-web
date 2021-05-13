@@ -96,7 +96,7 @@ inputWidget = mdo
       [ "class" =: "textarea is-family-code"
       , "rows" =: "10"
       ]
-    & setValue .~ leftmost
+    & textAreaElementConfig_setValue .~ leftmost
       [ exampleSourceCode <$> (updated . _dropdown_value $ dropdown')
       ]
 
