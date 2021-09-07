@@ -19,6 +19,7 @@ library
   exposed-modules:
     Frontend
     Frontend.Configs
+    Frontend.Debug
   ghc-options: -Wall
 
 executable frontend

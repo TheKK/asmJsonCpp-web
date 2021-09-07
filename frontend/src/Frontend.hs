@@ -14,7 +14,6 @@ import Common.Route
 import Data.Foldable
 import Data.Maybe
 import Control.Monad
-import Data.Traversable
 import Obelisk.Frontend
 import Obelisk.Generated.Static
 import Obelisk.Configs
@@ -222,18 +221,6 @@ css :: [Map.Map T.Text T.Text] -> T.Text
 css = fold . fmap go . Map.toList . fold
   where
     go (k, v) = k <> ": " <> v <> ";"
-
-selector :: (MonadWidget t m) => [(T.Text, m ())] -> m ()
-selector pages = mdo
-  -- State
-  clicksEs <- divClass "selector-buttons" $
-    for pages $ \(t, ma) -> do
-      e <- button t
-      return $ ma <$ e
-
-  _ <- widgetHold (fromMaybe blank $ snd <$> listToMaybe pages) $ leftmost clicksEs
-
-  return ()
 
 mainBody :: (MonadWidget t m, HasConfigs m) => m ()
 mainBody = elAttr "div" attrs $ mdo
