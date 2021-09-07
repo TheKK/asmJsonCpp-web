@@ -238,9 +238,7 @@ selector pages = mdo
 mainBody :: (MonadWidget t m, HasConfigs m) => m ()
 mainBody = elAttr "div" attrs $ mdo
   -- UI
-  selector
-    [ ("real", realBody)
-    ]
+  realBody
 
   -- Exports
   return ()
