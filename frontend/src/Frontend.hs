@@ -46,13 +46,25 @@ frontend = Frontend
 
 data Example
   = Example_Empty
+  | Example_JustInt
   | Example_ArrayOfString
+  | Example_ChainOfObjectFields
   | Example_AllFeatures
   deriving (Eq, Ord)
 
 exampleSourceCode :: Example -> T.Text
 exampleSourceCode Example_Empty = ""
+exampleSourceCode Example_JustInt = "AsInt // Nothing but int."
 exampleSourceCode Example_ArrayOfString = "AsArray EachElement AsString"
+exampleSourceCode Example_ChainOfObjectFields = T.init . T.unlines $
+  [ "AsObj AtField data"
+  , "AsObj AtField users"
+  , "AsObj AtField firstUser"
+  , "AsObj AtField user_name"
+  , "AsObj AtField height_"
+  , "AsObj AtField m"
+  , "AsDouble"
+  ]
 exampleSourceCode Example_AllFeatures = T.init . T.unlines $
   [
     "// Support line comment!",
@@ -101,7 +113,9 @@ inputWidget = mdo
 
   dropdown' <- divClass "select" $ dropdown Example_Empty (constDyn $ fold
     [ Example_Empty =: "playground"
+    , Example_JustInt =: "just int"
     , Example_ArrayOfString =: "array of string"
+    , Example_ChainOfObjectFields =: "chain of object fields"
     , Example_AllFeatures =: "all features"
     ])
     def
