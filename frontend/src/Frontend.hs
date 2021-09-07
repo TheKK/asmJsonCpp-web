@@ -36,7 +36,7 @@ runOnEvent e jsCode = void $ networkHold blank $ (ffor e $ \v -> liftJSM $ void 
 frontend :: Frontend (R FrontendRoute)
 frontend = Frontend
   { _frontend_head = do
-      el "title" $ text "Obelisk Minimal Example"
+      el "title" $ text "AsmJsonCpp"
       elAttr "link" ("href" =: static @"main.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
       elAttr "link" ("href" =: static @"normalize.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
       elAttr "link" ("href" =: static @"bulma.min.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
