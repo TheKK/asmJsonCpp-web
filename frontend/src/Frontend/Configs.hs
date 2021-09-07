@@ -7,5 +7,5 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import Obelisk.Configs
 
-getServerURL :: (HasConfigs m) => m T.Text
-getServerURL = T.decodeUtf8 . fromMaybe "" <$> getConfig "frontend/server_url"
+getAPIURL :: (HasConfigs m) => m T.Text
+getAPIURL = T.decodeUtf8 . fromMaybe "" <$> getConfig "frontend/api_url"

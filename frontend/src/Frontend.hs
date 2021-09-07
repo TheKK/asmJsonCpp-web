@@ -130,7 +130,7 @@ copyButton query = mdo
 
 compileV1 :: (MonadWidget t m, HasConfigs m) => Event t T.Text -> m (Event t T.Text)
 compileV1 queryE = do
-  apiUrl <- C.getServerURL
+  apiUrl <- C.getAPIURL
 
   respE <- performRequestAsync
     $ fmap (\url -> xhrRequest "GET" url def)
