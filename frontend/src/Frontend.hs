@@ -41,6 +41,9 @@ frontend = Frontend
       elAttr "link" ("href" =: static @"normalize.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
       elAttr "link" ("href" =: static @"bulma.min.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
       elAttr "link" ("href" =: static @"line-awesome-1.3.0/css/line-awesome.min.css" <> "type" =: "text/css" <> "rel" =: "stylesheet") blank
+      elAttr "link" ("href" =: "https://fonts.googleapis.com" <> "rel" =: "preconnect") blank
+      elAttr "link" ("href" =: "https://fonts.gstatic.com" <> "rel" =: "preconnect") blank
+      elAttr "link" ("href" =: "https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" <> "rel" =: "stylesheet") blank
   , _frontend_body = prerender_ blank mainBody
   }
 

@@ -9,3 +9,7 @@
 .real-body .query-section {
 	margin-bottom: 50px;
 }
+
+html .is-family-code {
+	font-family: 'Ubuntu Mono', monospace !important;
+}
