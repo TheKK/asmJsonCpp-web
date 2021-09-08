@@ -225,13 +225,13 @@ realBody = do
 
   where
     attrs = mkAttrs [
-      "class" =: "real-body",
-      "style" =: styles
-      ]
-
-    styles = css
-      [ "display" =: "flex"
-      , "flex" =: "1"
+      "style" =: css
+        [ "display" =: "flex"
+        , "flex-direction" =: "column"
+        , "flex" =: "1"
+        , "min-width" =: "340px"
+        , "margin" =: "30px"
+        ]
       ]
 
 css :: [Map.Map T.Text T.Text] -> T.Text
