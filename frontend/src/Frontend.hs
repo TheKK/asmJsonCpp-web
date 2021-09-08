@@ -170,7 +170,7 @@ resultWidget resultDyn = do
 
   -- UI
   divClass "title is-5" $ text "Result"
-  inputArea' <- divClass "block" $ textAreaElement $ def
+  _inputArea <- divClass "block" $ textAreaElement $ def
     & initialAttributes .~ fold
       [ "class" =: "result-area textarea is-family-code"
       , "rows" =: "10"
