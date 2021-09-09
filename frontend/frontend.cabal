@@ -16,6 +16,7 @@ library
                , obelisk-generated-static
                , text
                , containers
+               , modern-uri
   exposed-modules:
     Frontend
     Frontend.Configs
