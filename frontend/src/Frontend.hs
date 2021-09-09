@@ -22,6 +22,8 @@ import Reflex.Dom.Core
 import Reflex.Network
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
+import Text.URI
+import qualified Text.URI.Lens as L
 import Language.Javascript.JSaddle (eval, liftJSM)
 import Language.Javascript.JSaddle.Types (JSM, MonadJSM)
 
@@ -29,6 +31,19 @@ import qualified Frontend.Configs as C
 
 runOnEvent :: (Adjustable t m, MonadHold t m, MonadJSM m) => Event t a -> (a -> JSM b) -> m ()
 runOnEvent e jsCode = void $ networkHold blank $ (ffor e $ \v -> liftJSM $ void $ jsCode v)
+
+compileV1URI :: (HasConfigs m, MonadWidget t m) => Event t T.Text -> m (Event t (Maybe URI))
+compileV1URI queryE = do
+  rawUri <- C.getAPIURL
+
+  return $ ffor queryE $ \query -> do
+    uri <- mkURI rawUri
+    pathes <- traverse mkPathPiece ["api", "v1", "compile"]
+    queryParam <- QueryParam <$> mkQueryKey "query" <*> mkQueryValue query
+
+    return $ uri
+      & L.uriPath .~ pathes
+      & L.uriQuery .~ [queryParam]
 
 -- This runs in a monad that can be run on the client or the server.
 -- To run code in a pure client or pure server context, use one of the
@@ -146,19 +161,15 @@ copyButton query = mdo
 
 compileV1 :: (MonadWidget t m, HasConfigs m) => Event t T.Text -> m (Event t T.Text)
 compileV1 queryE = do
-  apiUrl <- C.getAPIURL
-
   respE <- performRequestAsync
-    $ fmap (\url -> xhrRequest "GET" url def)
-    $ fmap (\query -> apiUrl <> "/api/v1/compile?query=" <> query)
-    $ fmap encode
-    $ queryE
+    . fmap
+        ( (\url -> xhrRequest "GET" url def)
+        . render
+        )
+    . fmapMaybe id
+    =<< compileV1URI queryE
 
   return $ fmap (fromMaybe "nothing" . _xhrResponse_responseText) respE
-
-  where
-    -- XXX replace is not great.
-    encode = T.replace "\n" "%0A" . T.replace " " "%20"
 
 resultWidget :: (MonadWidget t m, HasConfigs m) => Dynamic t T.Text -> m ()
 resultWidget resultDyn = do
