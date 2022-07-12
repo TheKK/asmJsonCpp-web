@@ -38,7 +38,7 @@ jobs:
       name: Push docker image to GitHub Container Registry
       run: |
         OWNER=$(echo ${{ github.repository_owner }} | tr '[A-Z]' '[a-z]')
-        IMAGE=$(nix eval --raw '(import ./docker.nix {}).imageName' | tr '[A-Z]' '[a-z]')
+        IMAGE=$(nix eval --impure --raw --expr '(import ./docker.nix {}).imageName' | tr '[A-Z]' '[a-z]')
         BRANCH_TAG=$(echo ${{ github.ref }} | cut -d '/' -f 3)
         REGISTRY_URL=ghcr.io/$OWNER/$IMAGE
 
